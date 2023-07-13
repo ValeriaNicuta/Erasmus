@@ -1,13 +1,9 @@
 package Spark;
 
 import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.RelationalGroupedDataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
-import static org.apache.hadoop.shaded.com.google.common.collect.Multisets.filter;
 import static org.apache.spark.sql.functions.col;
-import static org.apache.spark.sql.functions.count;
 
 public class Erasmus {
     public static void main(String[] csv){
@@ -18,10 +14,12 @@ public class Erasmus {
                 .load(filePath);
         dataset.show(5,false);
 
-        Dataset<Row> filteredDF = dataset.groupBy("Receiving Country Code","Sending Country Code")
-                .count().alias("count").sort("Receiving Country Code");
+        Dataset<Row> filteredDF = dataset.filter(col("Receiving Country Code").isin("LV","MK","MT"))
+                .groupBy("Receiving Country Code","Sending Country Code")
+                .count()
+                .alias("count");
         filteredDF.show(50);
-        //filteredDF.write().format("csv").save("src/main/resources/FilteredData");
+
         sparkSession.close();
     }
 }
