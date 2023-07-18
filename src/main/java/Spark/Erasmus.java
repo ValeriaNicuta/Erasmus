@@ -2,6 +2,7 @@ package Spark;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
 import static org.apache.spark.sql.functions.col;
 
@@ -17,8 +18,19 @@ public class Erasmus {
         Dataset<Row> filteredDF = dataset.filter(col("Receiving Country Code").isin("LV","MK","MT"))
                 .groupBy("Receiving Country Code","Sending Country Code")
                 .count()
-                .alias("count");
+                .alias("count")
+                .sort("Receiving Country Code","Sending Country Code");
         filteredDF.show(50);
+
+        filteredDF.write()
+                .format("jdbc")
+                .option("driver","com.mysql.cj.jdbc.Driver")
+                .option("url", "jdbc:mysql://localhost:3306/spark?serverTimezone=Europe/Chisinau")
+                .option("dbtable", "rcc")
+                .option("user", "root")
+                .option("password", "root")
+                .mode(SaveMode.Overwrite)
+                .save();
 
         sparkSession.close();
     }
