@@ -22,7 +22,8 @@ public class Erasmus {
                 .sort("Receiving Country Code","Sending Country Code");
         filteredDF.show(50);
 
-        filteredDF.write()
+        //test
+        /*filteredDF.write()
                 .format("jdbc")
                 .option("driver","com.mysql.cj.jdbc.Driver")
                 .option("url", "jdbc:mysql://localhost:3306/spark?serverTimezone=Europe/Chisinau")
@@ -30,7 +31,46 @@ public class Erasmus {
                 .option("user", "root")
                 .option("password", "root")
                 .mode(SaveMode.Overwrite)
-                .save();
+                .save();*/
+
+        /*filteredDF.foreachPartition(rows->{
+            while(rows.hasNext()){
+                Row row=rows.next();
+                String groupName=row.getString(0);
+                String tablename="table"+groupName;
+
+                Dataset<Row> rowData = sparkSession.createDataFrame(Collections.singletonList(row),
+                        filteredDF.schema());
+
+                rowData.write()
+                        .format("jdbc")
+                        .option("driver","com.mysql.cj.jdbc.Driver")
+                        .option("url", "jdbc:mysql://localhost:3306/spark?serverTimezone=Europe/Chisinau")
+                        .option("dbtable", tablename)
+                        .option("user", "root")
+                        .option("password", "root")
+                        .mode(SaveMode.Overwrite)
+                        .save();
+            }
+        });*/
+
+        String[] codes = {"LV","MK","MT"};
+        for(String code:codes){
+            String tableName = "table"+code;
+
+            Dataset<Row> data = filteredDF.filter(col("Receiving Country Code").equalTo(code))
+                    .select("Receiving Country Code","Sending Country Code","count");
+
+            data.write()
+                    .format("jdbc")
+                    .option("driver","com.mysql.cj.jdbc.Driver")
+                    .option("url", "jdbc:mysql://localhost:3306/spark?serverTimezone=Europe/Chisinau")
+                    .option("dbtable", tableName)
+                    .option("user", "root")
+                    .option("password", "root")
+                    .mode(SaveMode.Overwrite)
+                    .save();
+        }
 
         sparkSession.close();
     }
