@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/Spark")
 public class Spark extends HttpServlet {
-    // ... (your existing code)
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -41,20 +40,16 @@ public class Spark extends HttpServlet {
             conn = DriverManager.getConnection(url, username, password);
             stmt = conn.createStatement();
 
-            // Modify the query to match your MySQL table structure and column names
             String query = "SELECT * FROM rcc";
             ResultSet rs = stmt.executeQuery(query);
 
-            // Output the data as an HTML table
-            out.println("<table border=\"1\">"); // Add a border to the table
+            out.println("<table border=\"1\">"); 
             out.println("<tr><th>Sending Country Code</th><th>Count</th></tr>");
 
             while (rs.next()) {
-                // Retrieve data from the result set
                 String rccSendingCountry = rs.getString("Sending Country Code");
                 int rccCount = rs.getInt("count");
 
-                // Output each row as a table row
                 out.println("<tr>");
                 out.println("<td>" + rccSendingCountry + "</td>");
                 out.println("<td>" + rccCount + "</td>");
